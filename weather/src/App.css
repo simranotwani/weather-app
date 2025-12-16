@@ -1,0 +1,155 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+/* CRITICAL: Full height fix */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* Animated premium background */
+body {
+  background: radial-gradient(
+      circle at 20% 20%,
+      rgba(0, 254, 186, 0.18),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(91, 84, 138, 0.25),
+      transparent 40%
+    ),
+    linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  background-size: 200% 200%;
+  animation: bgMove 16s ease infinite;
+}
+
+/* Background animation */
+@keyframes bgMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Full screen center */
+.app {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Card */
+.card {
+  width: 100%;
+  max-width: 720px;
+  background: linear-gradient(135deg, #00feba, #5b548a);
+  color: #fff;
+  border-radius: 24px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+/* Search section */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.search input {
+  flex: 1;
+  height: 60px;
+  border-radius: 30px;
+  border: none;
+  outline: none;
+  padding: 0 25px;
+  font-size: 18px;
+}
+
+.search button {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  background: #ebfffc;
+}
+
+/* Error message */
+.error {
+  margin-top: 12px;
+  color: #ffdddd;
+  font-size: 14px;
+  text-align: left;
+}
+
+/* Table container */
+.table-container {
+  margin-top: 30px;
+}
+
+.table-title {
+  margin-bottom: 15px;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+/* Weather table */
+.weather-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.weather-table th,
+.weather-table td {
+  padding: 14px 16px;
+  text-align: left;
+  font-size: 16px;
+}
+
+.weather-table th {
+  width: 40%;
+  background: rgba(0, 0, 0, 0.2);
+  font-weight: 500;
+}
+
+.weather-table tr:not(:last-child) {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .card {
+    margin: 20px;
+    padding: 30px;
+  }
+
+  .table-title {
+    font-size: 20px;
+  }
+
+  .weather-table th,
+  .weather-table td {
+    font-size: 14px;
+  }
+}
