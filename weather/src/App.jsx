@@ -1,168 +1,98 @@
-// import { useState } from "react";
-// import "./App.css";
-
-// function App() {
-//   const [city, setCity] = useState("");
-//   const [weather, setWeather] = useState(null);
-//   const [error, setError] = useState(false);
-
-//   const apiKey = "a5b24062aa6e5f59f74bcd9cb104f0e8";
-//   const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
-
-//   const checkWeather = async () => {
-//     if (!city) return;
-
-//     try {
-//       const res = await fetch(
-//         `${apiUrl}?q=${city}&units=metric&appid=${apiKey}`
-//       );
-
-//       if (!res.ok) {
-//         setError(true);
-//         setWeather(null);
-//         return;
-//       }
-
-//       const data = await res.json();
-//       setWeather(data);
-//       setError(false);
-//     } catch (err) {
-//       setError(true);
-//     }
-//   };
-
-//   const getWeatherIcon = (main) => {
-//     switch (main) {
-//       case "Clouds":
-//         return "/images/clouds.png";
-//       case "Clear":
-//         return "/images/clear.png";
-//       case "Rain":
-//         return "/images/rain.png";
-//       case "Drizzle":
-//         return "/images/drizzle.png";
-//       case "Mist":
-//         return "/images/mist.png";
-//       default:
-//         return "/images/clear.png";
-//     }
-//   };
-
-//   return (
-//     <div className="app">
-//       <div className="card">
-//         <div className="search">
-//           <input
-//             type="text"
-//             placeholder="Enter city name"
-//             value={city}
-//             onChange={(e) => setCity(e.target.value)}
-//             onKeyDown={(e) => e.key === "Enter" && checkWeather()}
-//           />
-//           <button onClick={checkWeather}>
-//             🔍
-//           </button>
-//         </div>
-
-//         {error && (
-//           <div className="error">
-//             <p>Invalid City Name</p>
-//           </div>
-//         )}
-
-//         {weather && (
-//           <div className="weather">
-//             <img
-//               src={getWeatherIcon(weather.weather[0].main)}
-//               className="weather-icon"
-//               alt="weather"
-//             />
-//             <h1>{Math.round(weather.main.temp)}°C</h1>
-//             <h2>{weather.name}</h2>
-
-//             <div className="details">
-//               <div className="col">
-//                 <img src="/images/humidity.png" alt="humidity" />
-//                 <div>
-//                   <p className="humidity">{weather.main.humidity}%</p>
-//                   <p>Humidity</p>
-//                 </div>
-//               </div>
-
-//               <div className="col">
-//                 <img src="/images/wind.png" alt="wind" />
-//                 <div>
-//                   <p className="wind">{weather.wind.speed} km/h</p>
-//                   <p>Wind Speed</p>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default App;
-
-
 import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const [city, setCity] = useState("");
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
   const [weather, setWeather] = useState(null);
-  const [error, setError] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [error, setError] = useState("");
 
   const apiKey = "a5b24062aa6e5f59f74bcd9cb104f0e8";
-  const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
 
-  const fetchWeather = async () => {
-    if (!city) return;
+  /* Fetch city suggestions */
+  const fetchCities = async (value) => {
+    setQuery(value);
+    if (value.length < 3) {
+      setSuggestions([]);
+      return;
+    }
 
     try {
       const res = await fetch(
-        `${apiUrl}?q=${city}&units=metric&appid=${apiKey}`
+        `https://api.openweathermap.org/geo/1.0/direct?q=${value}&limit=5&appid=${apiKey}`
+      );
+      const data = await res.json();
+      setSuggestions(data);
+    } catch {
+      setError("Failed to fetch cities");
+    }
+  };
+
+  /* Fetch weather for selected city */
+  const fetchWeather = async (city) => {
+    try {
+      const res = await fetch(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&units=metric&appid=${apiKey}`
       );
 
       if (!res.ok) {
-        setError(true);
-        setWeather(null);
+        setError("City not found");
         return;
       }
 
       const data = await res.json();
       setWeather(data);
-      setError(false);
-    } catch (err) {
-      setError(true);
+      setError("");
+      setSuggestions([]);
+      setQuery(city.name);
+
+      setHistory((prev) => [
+        { id: Date.now(), name: data.name, temp: data.main.temp },
+        ...prev,
+      ]);
+    } catch {
+      setError("Something went wrong");
     }
+  };
+
+  /* Delete history item */
+  const deleteHistory = (id) => {
+    setHistory(history.filter((item) => item.id !== id));
   };
 
   return (
     <div className="app">
       <div className="card">
-        {/* SEARCH */}
+
+        {/* SEARCH INPUT */}
         <div className="search">
           <input
             type="text"
-            placeholder="Enter city name"
-            value={city}
-            onChange={(e) => setCity(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && fetchWeather()}
+            placeholder="Type city name..."
+            value={query}
+            onChange={(e) => fetchCities(e.target.value)}
           />
-          <button onClick={fetchWeather}>🔍</button>
         </div>
 
-        {/* ERROR */}
-        {error && <p className="error">Invalid city name</p>}
+        {/* AUTOCOMPLETE LIST */}
+        {suggestions.length > 0 && (
+          <ul className="suggestions">
+            {suggestions.map((city, index) => (
+              <li key={index} onClick={() => fetchWeather(city)}>
+                {city.name}, {city.country}
+              </li>
+            ))}
+          </ul>
+        )}
 
-        {/* TABLE */}
+        {/* ERROR */}
+        {error && <p className="error">{error}</p>}
+
+        {/* WEATHER TABLE */}
         {weather && (
           <div className="table-container">
             <h2 className="table-title">Weather Details</h2>
-
             <table className="weather-table">
               <tbody>
                 <tr>
@@ -189,14 +119,26 @@ function App() {
                   <th>Wind Speed</th>
                   <td>{weather.wind.speed} km/h</td>
                 </tr>
-                <tr>
-                  <th>Pressure</th>
-                  <td>{weather.main.pressure} hPa</td>
-                </tr>
               </tbody>
             </table>
           </div>
         )}
+
+        {/* SEARCH HISTORY */}
+        {history.length > 0 && (
+          <div className="history">
+            <h3>Search History</h3>
+            {history.map((item) => (
+              <div className="history-item" key={item.id}>
+                <span>
+                  {item.name} — {Math.round(item.temp)}°C
+                </span>
+                <button onClick={() => deleteHistory(item.id)}>❌</button>
+              </div>
+            ))}
+          </div>
+        )}
+
       </div>
     </div>
   );
