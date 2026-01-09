@@ -206,3 +206,45 @@ body {
     font-size: 14px;
   }
 }
+.popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.popup-box {
+  background: #1e1e2f;
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+  animation: zoom 0.2s ease;
+}
+
+.popup-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.popup-actions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.popup-actions .danger {
+  background: #ff4d4d;
+  color: white;
+}
+
+@keyframes zoom {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
